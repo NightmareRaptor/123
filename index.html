@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ANIMΛ — Explore by Genre</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@300;400;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050508;
+    --surface: #0d0d14;
+    --border: #1a1a2e;
+    --text: #e8e8f0;
+    --muted: #5a5a7a;
+    --accent: #ff3c5a;
+    --accent2: #00e5ff;
+    --accent3: #ffcc00;
+    --accent4: #a855f7;
+    --accent5: #22c55e;
+    --accent6: #f97316;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  ::selection { background: var(--accent); color: #fff; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    width: 12px; height: 12px;
+    background: var(--accent);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.15s ease;
+    mix-blend-mode: exclusion;
+  }
+  .cursor-ring {
+    width: 36px; height: 36px;
+    border: 1.5px solid var(--accent2);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9998;
+    transition: all 0.12s ease;
+    mix-blend-mode: exclusion;
+  }
+
+  /* Noise overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9997;
+    opacity: 0.5;
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    padding: 2rem;
+  }
+
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,60,90,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,60,90,0.06) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridDrift 20s linear infinite;
+  }
+
+  @keyframes gridDrift {
+    from { transform: translateY(0); }
+    to { transform: translateY(60px); }
+  }
+
+  .hero-glow {
+    position: absolute;
+    width: 800px; height: 800px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,60,90,0.12) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulse 4s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+    50% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+  }
+
+  .hero-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    color: var(--accent2);
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(5rem, 18vw, 14rem);
+    line-height: 0.88;
+    letter-spacing: -0.02em;
+    position: relative;
+    animation: fadeUp 0.8s ease 0.1s both;
+  }
+
+  .hero-title span {
+    display: block;
+  }
+
+  .hero-title .lambda {
+    color: var(--accent);
+    display: inline-block;
+    animation: glitch 3s steps(1) infinite;
+  }
+
+  @keyframes glitch {
+    0%, 94%, 100% { clip-path: none; transform: none; }
+    95% { clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%); transform: translateX(4px); }
+    96% { clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%); transform: translateX(-4px); }
+    97% { clip-path: none; transform: none; }
+  }
+
+  .hero-sub {
+    font-size: 1rem;
+    color: var(--muted);
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    margin-top: 1.5rem;
+    animation: fadeUp 0.8s ease 0.2s both;
+  }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    animation: fadeUp 1s ease 0.6s both;
+  }
+
+  .scroll-line {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, var(--accent), transparent);
+    animation: scrollLine 1.5s ease-in-out infinite;
+  }
+
+  @keyframes scrollLine {
+    0% { transform: scaleY(0); transform-origin: top; }
+    50% { transform: scaleY(1); transform-origin: top; }
+    51% { transform: scaleY(1); transform-origin: bottom; }
+    100% { transform: scaleY(0); transform-origin: bottom; }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 3rem;
+    background: linear-gradient(to bottom, rgba(5,5,8,0.95) 0%, transparent 100%);
+    backdrop-filter: blur(2px);
+  }
+
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 0.05em;
+    color: var(--text);
+  }
+
+  .nav-logo span { color: var(--accent); }
+
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--accent2); }
+
+  /* GENRE FILTER */
+  .filter-section {
+    padding: 3rem 3rem 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(5,5,8,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .filter-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .filter-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .pill {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    padding: 0.45rem 1.1rem;
+    border-radius: 2px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: none;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+  }
+
+  .pill:hover, .pill.active {
+    border-color: currentColor;
+    color: var(--text);
+    background: rgba(255,255,255,0.04);
+  }
+
+  .pill[data-genre="action"] { --pill-color: var(--accent); }
+  .pill[data-genre="romance"] { --pill-color: #ff79a8; }
+  .pill[data-genre="scifi"] { --pill-color: var(--accent2); }
+  .pill[data-genre="fantasy"] { --pill-color: var(--accent4); }
+  .pill[data-genre="horror"] { --pill-color: #880000; }
+  .pill[data-genre="comedy"] { --pill-color: var(--accent3); }
+  .pill[data-genre="sports"] { --pill-color: var(--accent5); }
+  .pill[data-genre="psychological"] { --pill-color: var(--accent6); }
+
+  .pill:hover, .pill.active { color: var(--pill-color); border-color: var(--pill-color); }
+
+  /* MAIN CONTENT */
+  .main {
+    padding: 4rem 3rem;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  /* GENRE SECTIONS */
+  .genre-section {
+    margin-bottom: 6rem;
+    transition: opacity 0.4s ease;
+  }
+
+  .genre-section.hidden {
+    display: none;
+  }
+
+  .genre-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .genre-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  .genre-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    letter-spacing: 0.02em;
+    line-height: 1;
+  }
+
+  .genre-bar {
+    position: absolute;
+    bottom: 0; left: 0;
+    height: 2px;
+    width: 0;
+    transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    border-radius: 2px;
+  }
+
+  .genre-section.visible .genre-bar { width: 100%; }
+
+  .genre-desc {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-left: auto;
+    max-width: 300px;
+    text-align: right;
+    line-height: 1.6;
+    letter-spacing: 0.03em;
+    font-style: italic;
+    display: none;
+  }
+
+  @media (min-width: 900px) { .genre-desc { display: block; } }
+
+  /* ANIME GRID */
+  .anime-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.5rem;
+  }
+
+  /* ANIME CARD */
+  .anime-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    group: true;
+  }
+
+  .anime-card:hover {
+    transform: translateY(-6px) scale(1.01);
+    border-color: var(--card-accent);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px var(--card-accent);
+  }
+
+  .card-visual {
+    height: 180px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .card-bg {
+    position: absolute;
+    inset: 0;
+  }
+
+  .card-kanji {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 5rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.04);
+    position: absolute;
+    bottom: -10px;
+    right: 10px;
+    line-height: 1;
+    user-select: none;
+  }
+
+  .card-rank {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.5);
+    background: rgba(0,0,0,0.4);
+    padding: 0.2rem 0.5rem;
+    border-radius: 2px;
+    backdrop-filter: blur(4px);
+  }
+
+  .card-score {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    line-height: 1;
+    color: var(--card-accent);
+  }
+
+  .card-icon {
+    font-size: 3rem;
+    position: relative;
+    z-index: 1;
+    filter: drop-shadow(0 0 20px rgba(255,255,255,0.2));
+    transition: transform 0.3s ease;
+  }
+
+  .anime-card:hover .card-icon {
+    transform: scale(1.15) rotate(-5deg);
+  }
+
+  .card-body {
+    padding: 1.2rem;
+  }
+
+  .card-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.35rem;
+    letter-spacing: 0.03em;
+    line-height: 1.1;
+    margin-bottom: 0.3rem;
+    color: var(--text);
+  }
+
+  .card-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+  }
+
+  .card-info {
+    display: flex;
+    gap: 0.8rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .card-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    padding: 0.2rem 0.5rem;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.04);
+    color: var(--card-accent);
+    border: 1px solid rgba(255,255,255,0.06);
+    text-transform: uppercase;
+  }
+
+  .card-desc {
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 1.65;
+    letter-spacing: 0.02em;
+  }
+
+  .card-footer {
+    padding: 0.8rem 1.2rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-year {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--muted);
+  }
+
+  .card-arrow {
+    font-size: 0.75rem;
+    color: var(--card-accent);
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: all 0.2s ease;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .anime-card:hover .card-arrow {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* STATS BAR */
+  .stat-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.6rem;
+  }
+
+  .stat-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    min-width: 40px;
+    text-transform: uppercase;
+  }
+
+  .stat-bar-wrap {
+    flex: 1;
+    height: 3px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .stat-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--card-accent);
+    transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
+    width: 0;
+  }
+
+  .genre-section.visible .stat-bar-fill {
+    width: var(--fill);
+  }
+
+  .stat-val {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    color: var(--muted);
+    min-width: 25px;
+    text-align: right;
+  }
+
+  /* MARQUEE DIVIDER */
+  .marquee-wrap {
+    overflow: hidden;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 0.6rem 0;
+    margin: 4rem 0;
+  }
+
+  .marquee-inner {
+    display: flex;
+    gap: 4rem;
+    white-space: nowrap;
+    animation: marquee 25s linear infinite;
+  }
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  .marquee-item {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.25em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .marquee-dot {
+    color: var(--accent);
+    margin: 0 1rem;
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .footer-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    color: var(--muted);
+  }
+
+  .footer-logo span { color: var(--accent); }
+
+  .footer-copy {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<nav>
+  <div class="nav-logo">ANIM<span>Λ</span></div>
+  <ul class="nav-links">
+    <li><a href="#action">Action</a></li>
+    <li><a href="#scifi">Sci-Fi</a></li>
+    <li><a href="#fantasy">Fantasy</a></li>
+    <li><a href="#romance">Romance</a></li>
+    <li><a href="#horror">Horror</a></li>
+    <li><a href="#comedy">Comedy</a></li>
+    <li><a href="#sports">Sports</a></li>
+    <li><a href="#psychological">Psych</a></li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <p class="hero-tag">// The Ultimate Anime Index</p>
+  <h1 class="hero-title">
+    <span>ANIM<span class="lambda">Λ</span></span>
+  </h1>
+  <p class="hero-sub">Every genre. Every masterpiece. Catalogued.</p>
+  <div class="hero-scroll">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<div class="filter-section">
+  <p class="filter-label">// Filter by genre</p>
+  <div class="filter-pills">
+    <button class="pill active" data-genre="all" onclick="filterGenre('all', this)">All Genres</button>
+    <button class="pill" data-genre="action" onclick="filterGenre('action', this)">⚔ Action</button>
+    <button class="pill" data-genre="romance" onclick="filterGenre('romance', this)">♥ Romance</button>
+    <button class="pill" data-genre="scifi" onclick="filterGenre('scifi', this)">◈ Sci-Fi</button>
+    <button class="pill" data-genre="fantasy" onclick="filterGenre('fantasy', this)">✦ Fantasy</button>
+    <button class="pill" data-genre="horror" onclick="filterGenre('horror', this)">☠ Horror</button>
+    <button class="pill" data-genre="comedy" onclick="filterGenre('comedy', this)">✿ Comedy</button>
+    <button class="pill" data-genre="sports" onclick="filterGenre('sports', this)">⬡ Sports</button>
+    <button class="pill" data-genre="psychological" onclick="filterGenre('psychological', this)">⬟ Psychological</button>
+  </div>
+</div>
+
+<main class="main">
+
+  <!-- ACTION -->
+  <section class="genre-section visible" id="action" data-genre="action">
+    <div class="genre-header">
+      <span class="genre-num">01</span>
+      <h2 class="genre-name" style="color: var(--accent);">ACTION</h2>
+      <div class="genre-bar" style="background: var(--accent);"></div>
+      <p class="genre-desc">Pure adrenaline. High stakes. Battles that shake the earth and break the sky.</p>
+    </div>
+    <div class="anime-grid">
+
+      <div class="anime-card" style="--card-accent: #ff3c5a;">
+        <div class="card-visual">
+          <div class="card-bg" style="background: linear-gradient(135deg, #1a0010 0%, #3d0020 50%, #1a0010 100%);"></div>
+          <div class="card-kanji">鬼</div>
+          <span class="card-rank">#01</span>
+          <span class="card-score">9.3</span>
+          <div class="card-icon">⚔️</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Demon Slayer</div>
+          <div class="card-sub">Kimetsu no Yaiba</div>
+          <div class="card-info">
+            <span class="card-tag">Shonen</span>
+            <span class="card-tag">26 ep</span>
+          </div>
+          <p class="card-desc">A boy becomes a demon slayer after his family is slaughtered and his sister turned into a demon. Jaw-dropping animation redefines what TV anime can look like.</p>
+          <div class="stat-row"><span class="stat-label">Hype</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 98%;"></div></div><span class="stat-val">9.8</span></div>
+          <div class="stat-row"><span class="stat-label">Combat</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 100%;"></div></div><span class="stat-val">10</span></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">2019 · Ufotable</span>
+          <span class="card-arrow">EXPLORE →</span>
+        </div>
+      </div>
+
+      <div class="anime-card" style="--card-accent: #ff3c5a;">
+        <div class="card-visual">
+          <div class="card-bg" style="background: linear-gradient(135deg, #0a0a00 0%, #2a2000 50%, #0a0a00 100%);"></div>
+          <div class="card-kanji">斬</div>
+          <span class="card-rank">#02</span>
+          <span class="card-score">9.0</span>
+          <div class="card-icon">🗡️</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Attack on Titan</div>
+          <div class="card-sub">Shingeki no Kyojin</div>
+          <div class="card-info">
+            <span class="card-tag">Dark Fantasy</span>
+            <span class="card-tag">87 ep</span>
+          </div>
+          <p class="card-desc">Humanity cowers behind massive walls, hunted by giant humanoids. A sweeping epic that deconstructs war, freedom, and the cycle of hatred across generations.</p>
+          <div class="stat-row"><span class="stat-label">Story</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 97%;"></div></div><span class="stat-val">9.7</span></div>
+          <div class="stat-row"><span class="stat-label">Combat</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 95%;"></div></div><span class="stat-val">9.5</span></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">2013 · MAPPA</span>
+          <span class="card-arrow">EXPLORE →</span>
+        </div>
+      </div>
+
+      <div class="anime-card" style="--card-accent: #ff3c5a;">
+        <div class="card-visual">
+          <div class="card-bg" style="background: linear-gradient(135deg, #10001a 0%, #2d0050 50%, #10001a 100%);"></div>
+          <div class="card-kanji">拳</div>
+          <span class="card-rank">#03</span>
+          <span class="card-score">9.1</span>
+          <div class="card-icon">🔥</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Jujutsu Kaisen</div>
+          <div class="card-sub">Jujutsu Kaisen</div>
+          <div class="card-info">
+            <span class="card-tag">Supernatural</span>
+            <span class="card-tag">47 ep</span>
+          </div>
+          <p class="card-desc">After swallowing a cursed finger, a boy becomes host to the world's most powerful curse. Utterly frenetic animation and lovable characters drive this modern titan.</p>
+          <div class="stat-row"><span class="stat-label">Hype</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 96%;"></div></div><span class="stat-val">9.6</span></div>
+          <div class="stat-row"><span class="stat-label">Animation</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 99%;"></div></div><span class="stat-val">9.9</span></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">2020 · MAPPA</span>
+          <span class="card-arrow">EXPLORE →</span>
+        </div>
+      </div>
+
+      <div class="anime-card" style="--card-accent: #ff3c5a;">
+        <div class="card-visual">
+          <div class="card-bg" style="background: linear-gradient(135deg, #000d1a 0%, #001e3d 50%, #000d1a 100%);"></div>
+          <div class="card-kanji">海</div>
+          <span class="card-rank">#04</span>
+          <span class="card-score">9.2</span>
+          <div class="card-icon">🏴‍☠️</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">One Piece</div>
+          <div class="card-sub">Wan Pisu</div>
+          <div class="card-info">
+            <span class="card-tag">Adventure</span>
+            <span class="card-tag">1000+ ep</span>
+          </div>
+          <p class="card-desc">Monkey D. Luffy sails the Grand Line to become King of the Pirates. The most ambitious, emotional, and expansive adventure ever committed to animation.</p>
+          <div class="stat-row"><span class="stat-label">World</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 100%;"></div></div><span class="stat-val">10</span></div>
+          <div class="stat-row"><span class="stat-label">Emotion</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 99%;"></div></div><span class="stat-val">9.9</span></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">1999 · Toei</span>
+          <span class="card-arrow">EXPLORE →</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="marquee-wrap">
+    <div class="marquee-inner">
+      <span class="marquee-item">Action<span class="marquee-dot">◆</span></span>
+      <span class="marquee-item">Romance<span class="marquee-dot">◆</span></span>
+      <span class="marquee-item">Sci-Fi<span class="marquee-dot">◆</span></span>
+      <span class="marquee-item">Fantasy<span class="marquee-dot">◆</span></span>
+      <span class="marquee-item">Horror<span class="marquee-dot">◆</span></span>
+      <span class="marquee-item">Comedy<span class="marquee-dot">◆</span></span>
+      <span class="marquee-item">Sports<span class="marquee-dot">◆</span></span>
+      <span class="marquee-item">Psychological<span class="marquee-dot">◆</span></span>
+      <span class="marquee-item">Action<span class="marquee-dot">◆</span></span>
+      <span class="marquee-item">Romance<span class="marquee-dot">◆</span></span>
+      <span class="marquee-item">Sci-Fi<span class="marquee-dot">◆</span></span>
+      <span class="marquee-item">Fantasy<span class="marquee-dot">◆</span></span>
+      <span class="marquee-item">Horror<span class="marquee-dot">◆</span></span>
+      <span class="marquee-item">Comedy<span class="marquee-dot">◆</span></span>
+      <span class="marquee-item">Sports<span class="marquee-dot">◆</span></span>
+      <span class="marquee-item">Psychological<span class="marquee-dot">◆</span></span>
+    </div>
+  </div>
+
+  <!-- ROMANCE -->
+  <section class="genre-section visible" id="romance" data-genre="romance">
+    <div class="genre-header">
+      <span class="genre-num">02</span>
+      <h2 class="genre-name" style="color: #ff79a8;">ROMANCE</h2>
+      <div class="genre-bar" style="background: linear-gradient(90deg, #ff79a8, #ff3c8a);"></div>
+      <p class="genre-desc">Hearts breaking. Moments stolen. Love that hits harder than any punch.</p>
+    </div>
+    <div class="anime-grid">
+
+      <div class="anime-card" style="--card-accent: #ff79a8;">
+        <div class="card-visual">
+          <div class="card-bg" style="background: linear-gradient(135deg, #1a0010 0%, #3d0020 50%, #1a0010 100%);"></div>
+          <div class="card-kanji">恋</div>
+          <span class="card-rank">#01</span>
+          <span class="card-score">8.9</span>
+          <div class="card-icon">🌸</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Your Lie in April</div>
+          <div class="card-sub">Shigatsu wa Kimi no Uso</div>
+          <div class="card-info">
+            <span class="card-tag">Music</span>
+            <span class="card-tag">22 ep</span>
+          </div>
+          <p class="card-desc">A prodigy pianist who lost his hearing meets a free-spirited violinist. Devastating emotional storytelling wrapped in breathtaking classical music.</p>
+          <div class="stat-row"><span class="stat-label">Tears</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 100%;"></div></div><span class="stat-val">10</span></div>
+          <div class="stat-row"><span class="stat-label">Music</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 100%;"></div></div><span class="stat-val">10</span></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">2014 · A-1 Pictures</span>
+          <span class="card-arrow">EXPLORE →</span>
+        </div>
+      </div>
+
+      <div class="anime-card" style="--card-accent: #ff79a8;">
+        <div class="card-visual">
+          <div class="card-bg" style="background: linear-gradient(135deg, #0d0a1a 0%, #1e1040 50%, #0d0a1a 100%);"></div>
+          <div class="card-kanji">愛</div>
+          <span class="card-rank">#02</span>
+          <span class="card-score">8.8</span>
+          <div class="card-icon">💫</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Toradora!</div>
+          <div class="card-sub">Toradora!</div>
+          <div class="card-info">
+            <span class="card-tag">Slice of Life</span>
+            <span class="card-tag">25 ep</span>
+          </div>
+          <p class="card-desc">A tough-looking softie and a ferocious tiny girl team up to help each other win their crushes. One of the most beloved romance anime of all time.</p>
+          <div class="stat-row"><span class="stat-label">Chemistry</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 97%;"></div></div><span class="stat-val">9.7</span></div>
+          <div class="stat-row"><span class="stat-label">Comedy</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 90%;"></div></div><span class="stat-val">9.0</span></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">2008 · J.C. Staff</span>
+          <span class="card-arrow">EXPLORE →</span>
+        </div>
+      </div>
+
+      <div class="anime-card" style="--card-accent: #ff79a8;">
+        <div class="card-visual">
+          <div class="card-bg" style="background: linear-gradient(135deg, #001a10 0%, #003d20 50%, #001a10 100%);"></div>
+          <div class="card-kanji">桜</div>
+          <span class="card-rank">#03</span>
+          <span class="card-score">8.7</span>
+          <div class="card-icon">🍃</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Clannad: After Story</div>
+          <div class="card-sub">Kurannado Afutasutori</div>
+          <div class="card-info">
+            <span class="card-tag">Drama</span>
+            <span class="card-tag">24 ep</span>
+          </div>
+          <p class="card-desc">A delinquent and a girl with few friends navigate life beyond high school. The sequel that broke an entire generation—a masterclass in grief and family.</p>
+          <div class="stat-row"><span class="stat-label">Tears</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 100%;"></div></div><span class="stat-val">10</span></div>
+          <div class="stat-row"><span class="stat-label">Depth</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 98%;"></div></div><span class="stat-val">9.8</span></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">2008 · Kyoto Animation</span>
+          <span class="card-arrow">EXPLORE →</span>
+        </div>
+      </div>
+
+      <div class="anime-card" style="--card-accent: #ff79a8;">
+        <div class="card-visual">
+          <div class="card-bg" style="background: linear-gradient(135deg, #1a1000 0%, #3d2a00 50%, #1a1000 100%);"></div>
+          <div class="card-kanji">月</div>
+          <span class="card-rank">#04</span>
+          <span class="card-score">8.6</span>
+          <div class="card-icon">🌙</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Fruits Basket</div>
+          <div class="card-sub">Furuba</div>
+          <div class="card-info">
+            <span class="card-tag">Supernatural</span>
+            <span class="card-tag">63 ep</span>
+          </div>
+          <p class="card-desc">An orphaned girl discovers a family cursed to transform into zodiac animals. A warm, healing story about trauma, acceptance, and found family.</p>
+          <div class="stat-row"><span class="stat-label">Heart</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 95%;"></div></div><span class="stat-val">9.5</span></div>
+          <div class="stat-row"><span class="stat-label">Story</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 92%;"></div></div><span class="stat-val">9.2</span></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">2019 · TMS Entertainment</span>
+          <span class="card-arrow">EXPLORE →</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SCI-FI -->
+  <section class="genre-section visible" id="scifi" data-genre="scifi">
+    <div class="genre-header">
+      <span class="genre-num">03</span>
+      <h2 class="genre-name" style="color: var(--accent2);">SCI-FI</h2>
+      <div class="genre-bar" style="background: linear-gradient(90deg, var(--accent2), #0088aa);"></div>
+      <p class="genre-desc">Diverging timelines. Dying stars. Questions that haunt you long after the credits roll.</p>
+    </div>
+    <div class="anime-grid">
+
+      <div class="anime-card" style="--card-accent: #00e5ff;">
+        <div class="card-visual">
+          <div class="card-bg" style="background: linear-gradient(135deg, #001520 0%, #003040 50%, #001520 100%);"></div>
+          <div class="card-kanji">時</div>
+          <span class="card-rank">#01</span>
+          <span class="card-score">9.1</span>
+          <div class="card-icon">⚗️</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Steins;Gate</div>
+          <div class="card-sub">Shutainzu Geto</div>
+          <div class="card-info">
+            <span class="card-tag">Time Travel</span>
+            <span class="card-tag">24 ep</span>
+          </div>
+          <p class="card-desc">A self-proclaimed mad scientist accidentally invents time travel using a microwave. A slow burn that ignites into one of the most emotionally devastating finales in anime history.</p>
+          <div class="stat-row"><span class="stat-label">Intrigue</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 100%;"></div></div><span class="stat-val">10</span></div>
+          <div class="stat-row"><span class="stat-label">Payoff</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 100%;"></div></div><span class="stat-val">10</span></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">2011 · White Fox</span>
+          <span class="card-arrow">EXPLORE →</span>
+        </div>
+      </div>
+
+      <div class="anime-card" style="--card-accent: #00e5ff;">
+        <div class="card-visual">
+          <div class="card-bg" style="background: linear-gradient(135deg, #000a20 0%, #001050 50%, #000a20 100%);"></div>
+          <div class="card-kanji">機</div>
+          <span class="card-rank">#02</span>
+          <span class="card-score">8.4</span>
+          <div class="card-icon">🤖</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Ghost in the Shell SAC</div>
+          <div class="card-sub">Koukaku Kidoutai</div>
+          <div class="card-info">
+            <span class="card-tag">Cyberpunk</span>
+            <span class="card-tag">52 ep</span>
+          </div>
+          <p class="card-desc">In a cybernetic future, an elite counter-cyberterrorism unit hunts dangerous hackers. Dense, philosophical, and visually ahead of its time — a genre cornerstone.</p>
+          <div class="stat-row"><span class="stat-label">Intellect</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 96%;"></div></div><span class="stat-val">9.6</span></div>
+          <div class="stat-row"><span class="stat-label">Worldbuild</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 100%;"></div></div><span class="stat-val">10</span></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">2002 · Production I.G</span>
+          <span class="card-arrow">EXPLORE →</span>
+        </div>
+      </div>
+
+      <div class="anime-card" style="--card-accent: #00e5ff;">
+        <div class="card-visual">
+          <div class="card-bg" style="background: linear-gradient(135deg, #0a0020 0%, #1a0050 50%, #0a0020 100%);"></div>
+          <div class="card-kanji">星</div>
+          <span class="card-rank">#03</span>
+          <span class="card-score">8.8</span>
+          <div class="card-icon">🌌</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Neon Genesis Evangelion</div>
+          <div class="card-sub">Shinseiki Evangelion</div>
+          <div class="card-info">
+            <span class="card-tag">Mecha</span>
+            <span class="card-tag">26 ep</span>
+          </div>
+          <p class="card-desc">Teenagers pilot giant bio-mechanical robots against apocalyptic beings called Angels. A deconstruction of the mecha genre that became a landmark psychological study.</p>
+          <div class="stat-row"><span class="stat-label">Legacy</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 100%;"></div></div><span class="stat-val">10</span></div>
+          <div class="stat-row"><span class="stat-label">Depth</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 97%;"></div></div><span class="stat-val">9.7</span></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">1995 · Gainax</span>
+          <span class="card-arrow">EXPLORE →</span>
+        </div>
+      </div>
+
+      <div class="anime-card" style="--card-accent: #00e5ff;">
+        <div class="card-visual">
+          <div class="card-bg" style="background: linear-gradient(135deg, #001010 0%, #003030 50%, #001010 100%);"></div>
+          <div class="card-kanji">宇</div>
+          <span class="card-rank">#04</span>
+          <span class="card-score">8.2</span>
+          <div class="card-icon">🚀</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Planetes</div>
+          <div class="card-sub">Puranetesu</div>
+          <div class="card-info">
+            <span class="card-tag">Hard Sci-Fi</span>
+            <span class="card-tag">26 ep</span>
+          </div>
+          <p class="card-desc">Space debris collectors in 2075 navigate orbital politics, humanity, and ambition. One of the most realistic and emotionally resonant space stories ever told.</p>
+          <div class="stat-row"><span class="stat-label">Realism</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 100%;"></div></div><span class="stat-val">10</span></div>
+          <div class="stat-row"><span class="stat-label">Heart</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 88%;"></div></div><span class="stat-val">8.8</span></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">2003 · Sunrise</span>
+          <span class="card-arrow">EXPLORE →</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FANTASY -->
+  <section class="genre-section visible" id="fantasy" data-genre="fantasy">
+    <div class="genre-header">
+      <span class="genre-num">04</span>
+      <h2 class="genre-name" style="color: var(--accent4);">FANTASY</h2>
+      <div class="genre-bar" style="background: linear-gradient(90deg, var(--accent4), #7c3aed);"></div>
+      <p class="genre-desc">Impossible worlds made tangible. Magic systems with rules. Wonder in every frame.</p>
+    </div>
+    <div class="anime-grid">
+
+      <div class="anime-card" style="--card-accent: #a855f7;">
+        <div class="card-visual">
+          <div class="card-bg" style="background: linear-gradient(135deg, #0d001a 0%, #250040 50%, #0d001a 100%);"></div>
+          <div class="card-kanji">魔</div>
+          <span class="card-rank">#01</span>
+          <span class="card-score">8.9</span>
+          <div class="card-icon">🧙</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Fullmetal Alchemist: Brotherhood</div>
+          <div class="card-sub">Hagane no Renkinjutsushi</div>
+          <div class="card-info">
+            <span class="card-tag">Alchemy</span>
+            <span class="card-tag">64 ep</span>
+          </div>
+          <p class="card-desc">Two brothers use forbidden alchemy to restore their bodies. Perfectly structured, thematically rich, action-packed. Widely considered the greatest anime ever made.</p>
+          <div class="stat-row"><span class="stat-label">Story</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 100%;"></div></div><span class="stat-val">10</span></div>
+          <div class="stat-row"><span class="stat-label">Legacy</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 100%;"></div></div><span class="stat-val">10</span></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">2009 · Bones</span>
+          <span class="card-arrow">EXPLORE →</span>
+        </div>
+      </div>
+
+      <div class="anime-card" style="--card-accent: #a855f7;">
+        <div class="card-visual">
+          <div class="card-bg" style="background: linear-gradient(135deg, #001a0d 0%, #003020 50%, #001a0d 100%);"></div>
+          <div class="card-kanji">風</div>
+          <span class="card-rank">#02</span>
+          <span class="card-score">8.6</span>
+          <div class="card-icon">🌿</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Made in Abyss</div>
+          <div class="card-sub">Meido in Abisu</div>
+          <div class="card-info">
+            <span class="card-tag">Dark Fantasy</span>
+            <span class="card-tag">13 ep</span>
+          </div>
+          <p class="card-desc">A girl descends into a bottomless abyss to find her missing mother, with increasingly horrifying costs. Deceptively cute art concealing nightmare-tier world-building.</p>
+          <div class="stat-row"><span class="stat-label">Worldbuild</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 100%;"></div></div><span class="stat-val">10</span></div>
+          <div class="stat-row"><span class="stat-label">Dread</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 96%;"></div></div><span class="stat-val">9.6</span></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">2017 · Kinema Citrus</span>
+          <span class="card-arrow">EXPLORE →</span>
+        </div>
+      </div>
+
+      <div class="anime-card" style="--card-accent: #a855f7;">
+        <div class="card-visual">
+          <div class="card-bg" style="background: linear-gradient(135deg, #1a0a00 0%, #3d2000 50%, #1a0a00 100%);"></div>
+          <div class="card-kanji">龍</div>
+          <span class="card-rank">#03</span>
+          <span class="card-score">9.0</span>
+          <div class="card-icon">⚡</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Hunter x Hunter</div>
+          <div class="card-sub">Hanta x Hanta</div>
+          <div class="card-info">
+            <span class="card-tag">Adventure</span>
+            <span class="card-tag">148 ep</span>
+          </div>
+          <p class="card-desc">A boy searches for his father while becoming a Hunter. Features Nen, one of the greatest power systems ever devised, and an ant arc that rivals literature.</p>
+          <div class="stat-row"><span class="stat-label">Power Sys</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 100%;"></div></div><span class="stat-val">10</span></div>
+          <div class="stat-row"><span class="stat-label">Depth</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 97%;"></div></div><span class="stat-val">9.7</span></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">2011 · Madhouse</span>
+          <span class="card-arrow">EXPLORE →</span>
+        </div>
+      </div>
+
+      <div class="anime-card" style="--card-accent: #a855f7;">
+        <div class="card-visual">
+          <div class="card-bg" style="background: linear-gradient(135deg, #00101a 0%, #002030 50%, #00101a 100%);"></div>
+          <div class="card-kanji">呪</div>
+          <span class="card-rank">#04</span>
+          <span class="card-score">8.5</span>
+          <div class="card-icon">🔮</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Re:Zero</div>
+          <div class="card-sub">Re:Zero kara Hajimeru Isekai Seikatsu</div>
+          <div class="card-info">
+            <span class="card-tag">Isekai</span>
+            <span class="card-tag">50 ep</span>
+          </div>
+          <p class="card-desc">A boy summoned to a fantasy world can only return from death by reliving events. A brutal subversion of the isekai genre that puts its protagonist through pure hell.</p>
+          <div class="stat-row"><span class="stat-label">Tension</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 98%;"></div></div><span class="stat-val">9.8</span></div>
+          <div class="stat-row"><span class="stat-label">Character</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 93%;"></div></div><span class="stat-val">9.3</span></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">2016 · White Fox</span>
+          <span class="card-arrow">EXPLORE →</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- HORROR -->
+  <section class="genre-section visible" id="horror" data-genre="horror">
+    <div class="genre-header">
+      <span class="genre-num">05</span>
+      <h2 class="genre-name" style="color: #cc0000;">HORROR</h2>
+      <div class="genre-bar" style="background: linear-gradient(90deg, #cc0000, #880000);"></div>
+      <p class="genre-desc">Dread built frame by frame. The kind of unsettling that doesn't wash off.</p>
+    </div>
+    <div class="anime-grid">
+
+      <div class="anime-card" style="--card-accent: #cc0000;">
+        <div class="card-visual">
+          <div class="card-bg" style="background: linear-gradient(135deg, #0a0000 0%, #200000 50%, #0a0000 100%);"></div>
+          <div class="card-kanji">寄</div>
+          <span class="card-rank">#01</span>
+          <span class="card-score">8.5</span>
+          <div class="card-icon">🦠</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Parasyte: The Maxim</div>
+          <div class="card-sub">Kiseijuu: Sei no Kakuritsu</div>
+          <div class="card-info">
+            <span class="card-tag">Body Horror</span>
+            <span class="card-tag">24 ep</span>
+          </div>
+          <p class="card-desc">Alien parasites invade Earth — one fails to reach a boy's brain and bonds with his hand instead. Visceral body horror meets a philosophical meditation on what it means to be human.</p>
+          <div class="stat-row"><span class="stat-label">Gore</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 90%;"></div></div><span class="stat-val">9.0</span></div>
+          <div class="stat-row"><span class="stat-label">Thought</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 95%;"></div></div><span class="stat-val">9.5</span></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">2014 · Madhouse</span>
+          <span class="card-arrow">EXPLORE →</span>
+        </div>
+      </div>
+
+      <div class="anime-card" style="--card-accent: #cc0000;">
+        <div class="card-visual">
+          <div class="card-bg" style="background: linear-gradient(135deg, #040010 0%, #10002a 50%, #040010 100%);"></div>
+          <div class="card-kanji">怪</div>
+          <span class="card-rank">#02</span>
+          <span class="card-score">9.0</span>
+          <div class="card-icon">👁️</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Monster</div>
+          <div class="card-sub">Monsuta</div>
+          <div class="card-info">
+            <span class="card-tag">Thriller</span>
+            <span class="card-tag">74 ep</span>
+          </div>
+          <p class="card-desc">A renowned surgeon saves a boy's life — who grows into a serial killer. A European thriller across Germany following one of the most chilling antagonists in fiction.</p>
+          <div class="stat-row"><span class="stat-label">Tension</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 98%;"></div></div><span class="stat-val">9.8</span></div>
+          <div class="stat-row"><span class="stat-label">Writing</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 100%;"></div></div><span class="stat-val">10</span></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">2004 · Madhouse</span>
+          <span class="card-arrow">EXPLORE →</span>
+        </div>
+      </div>
+
+      <div class="anime-card" style="--card-accent: #cc0000;">
+        <div class="card-visual">
+          <div class="card-bg" style="background: linear-gradient(135deg, #00100a 0%, #002015 50%, #00100a 100%);"></div>
+          <div class="card-kanji">血</div>
+          <span class="card-rank">#03</span>
+          <span class="card-score">8.1</span>
+          <div class="card-icon">🩸</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Shiki</div>
+          <div class="card-sub">Shiki</div>
+          <div class="card-info">
+            <span class="card-tag">Vampire</span>
+            <span class="card-tag">22 ep</span>
+          </div>
+          <p class="card-desc">A rural village is overtaken by mysterious deaths. A morally complex horror that refuses to clearly define monsters from humans — both sides have their reasons.</p>
+          <div class="stat-row"><span class="stat-label">Dread</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 92%;"></div></div><span class="stat-val">9.2</span></div>
+          <div class="stat-row"><span class="stat-label">Morality</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 97%;"></div></div><span class="stat-val">9.7</span></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">2010 · Daume</span>
+          <span class="card-arrow">EXPLORE →</span>
+        </div>
+      </div>
+
+      <div class="anime-card" style="--card-accent: #cc0000;">
+        <div class="card-visual">
+          <div class="card-bg" style="background: linear-gradient(135deg, #0a0000 0%, #1e0000 50%, #0a0000 100%);"></div>
+          <div class="card-kanji">赤</div>
+          <span class="card-rank">#04</span>
+          <span class="card-score">8.0</span>
+          <div class="card-icon">🕯️</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Higurashi</div>
+          <div class="card-sub">Higurashi no Naku Koro ni</div>
+          <div class="card-info">
+            <span class="card-tag">Mystery</span>
+            <span class="card-tag">26 ep</span>
+          </div>
+          <p class="card-desc">A boy moves to a rural village where children keep dying around a yearly festival. Each arc resets with different outcomes. Violent, disturbing, and utterly addictive.</p>
+          <div class="stat-row"><span class="stat-label">Mystery</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 98%;"></div></div><span class="stat-val">9.8</span></div>
+          <div class="stat-row"><span class="stat-label">Shock</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 95%;"></div></div><span class="stat-val">9.5</span></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">2006 · Studio Deen</span>
+          <span class="card-arrow">EXPLORE →</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- COMEDY -->
+  <section class="genre-section visible" id="comedy" data-genre="comedy">
+    <div class="genre-header">
+      <span class="genre-num">06</span>
+      <h2 class="genre-name" style="color: var(--accent3);">COMEDY</h2>
+      <div class="genre-bar" style="background: linear-gradient(90deg, var(--accent3), #e6a800);"></div>
+      <p class="genre-desc">The kind of funny that makes you spit your drink. Absurdist. Clever. Chaotic.</p>
+    </div>
+    <div class="anime-grid">
+
+      <div class="anime-card" style="--card-accent: #ffcc00;">
+        <div class="card-visual">
+          <div class="card-bg" style="background: linear-gradient(135deg, #1a1400 0%, #3d3000 50%, #1a1400 100%);"></div>
+          <div class="card-kanji">笑</div>
+          <span class="card-rank">#01</span>
+          <span class="card-score">8.7</span>
+          <div class="card-icon">😂</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Gintama</div>
+          <div class="card-sub">Gintama</div>
+          <div class="card-info">
+            <span class="card-tag">Parody</span>
+            <span class="card-tag">367 ep</span>
+          </div>
+          <p class="card-desc">Samurai in feudal Japan with aliens. An endless stream of meta-humor, absurdism, and fourth-wall breaks — punctuated by some of the most emotionally devastating arcs in anime.</p>
+          <div class="stat-row"><span class="stat-label">Laughs</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 100%;"></div></div><span class="stat-val">10</span></div>
+          <div class="stat-row"><span class="stat-label">Heart</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 98%;"></div></div><span class="stat-val">9.8</span></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">2006 · Sunrise</span>
+          <span class="card-arrow">EXPLORE →</span>
+        </div>
+      </div>
+
+      <div class="anime-card" style="--card-accent: #ffcc00;">
+        <div class="card-visual">
+          <div class="card-bg" style="background: linear-gradient(135deg, #001a1a 0%, #003535 50%, #001a1a 100%);"></div>
+          <div class="card-kanji">覇</div>
+          <span class="card-rank">#02</span>
+          <span class="card-score">8.6</span>
+          <div class="card-icon">💪</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">One Punch Man</div>
+          <div class="card-sub">Wanpanman</div>
+          <div class="card-info">
+            <span class="card-tag">Superhero</span>
+            <span class="card-tag">12 ep</span>
+          </div>
+          <p class="card-desc">A hero so powerful he defeats every enemy in one punch — and is completely bored by it. A genius deconstruction of superhero power fantasy dressed as slick, gorgeous action.</p>
+          <div class="stat-row"><span class="stat-label">Animation</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 100%;"></div></div><span class="stat-val">10</span></div>
+          <div class="stat-row"><span class="stat-label">Comedy</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 95%;"></div></div><span class="stat-val">9.5</span></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">2015 · Madhouse</span>
+          <span class="card-arrow">EXPLORE →</span>
+        </div>
+      </div>
+
+      <div class="anime-card" style="--card-accent: #ffcc00;">
+        <div class="card-visual">
+          <div class="card-bg" style="background: linear-gradient(135deg, #0d001a 0%, #200040 50%, #0d001a 100%);"></div>
+          <div class="card-kanji">異</div>
+          <span class="card-rank">#03</span>
+          <span class="card-score">8.1</span>
+          <div class="card-icon">💥</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">KonoSuba</div>
+          <div class="card-sub">Kono Subarashii Sekai ni Shukufuku wo!</div>
+          <div class="card-info">
+            <span class="card-tag">Isekai Parody</span>
+            <span class="card-tag">20 ep</span>
+          </div>
+          <p class="card-desc">A shut-in is reborn in a fantasy world with a useless goddess, an explosion-obsessed mage, and a masochist knight. The pinnacle of isekai parody comedy.</p>
+          <div class="stat-row"><span class="stat-label">Chaos</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 97%;"></div></div><span class="stat-val">9.7</span></div>
+          <div class="stat-row"><span class="stat-label">Party</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 100%;"></div></div><span class="stat-val">10</span></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">2016 · Studio Deen</span>
+          <span class="card-arrow">EXPLORE →</span>
+        </div>
+      </div>
+
+      <div class="anime-card" style="--card-accent: #ffcc00;">
+        <div class="card-visual">
+          <div class="card-bg" style="background: linear-gradient(135deg, #001015 0%, #002030 50%, #001015 100%);"></div>
+          <div class="card-kanji">族</div>
+          <span class="card-rank">#04</span>
+          <span class="card-score">7.9</span>
+          <div class="card-icon">🎌</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Daily Lives of High School Boys</div>
+          <div class="card-sub">Danshi Koukousei no Nichijou</div>
+          <div class="card-info">
+            <span class="card-tag">Slice of Life</span>
+            <span class="card-tag">12 ep</span>
+          </div>
+          <p class="card-desc">Sketch comedy following three high schoolers doing absolutely nothing of consequence. Criminally underrated — the funniest anime slice-of-life ever made, no contest.</p>
+          <div class="stat-row"><span class="stat-label">Laughs</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 100%;"></div></div><span class="stat-val">10</span></div>
+          <div class="stat-row"><span class="stat-label">Relatable</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 99%;"></div></div><span class="stat-val">9.9</span></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">2012 · Sunrise</span>
+          <span class="card-arrow">EXPLORE →</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SPORTS -->
+  <section class="genre-section visible" id="sports" data-genre="sports">
+    <div class="genre-header">
+      <span class="genre-num">07</span>
+      <h2 class="genre-name" style="color: var(--accent5);">SPORTS</h2>
+      <div class="genre-bar" style="background: linear-gradient(90deg, var(--accent5), #16a34a);"></div>
+      <p class="genre-desc">The impossible training montage. The final serve. The match that makes grown people cry.</p>
+    </div>
+    <div class="anime-grid">
+
+      <div class="anime-card" style="--card-accent: #22c55e;">
+        <div class="card-visual">
+          <div class="card-bg" style="background: linear-gradient(135deg, #001a08 0%, #003015 50%, #001a08 100%);"></div>
+          <div class="card-kanji">排</div>
+          <span class="card-rank">#01</span>
+          <span class="card-score">8.7</span>
+          <div class="card-icon">🏐</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Haikyuu!!</div>
+          <div class="card-sub">Haikyuu!!</div>
+          <div class="card-info">
+            <span class="card-tag">Volleyball</span>
+            <span class="card-tag">85 ep</span>
+          </div>
+          <p class="card-desc">A short boy with enormous talent and a genius setter form an unlikely duo. Every match feels like the most important event in human history. Peak sports storytelling.</p>
+          <div class="stat-row"><span class="stat-label">Hype</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 100%;"></div></div><span class="stat-val">10</span></div>
+          <div class="stat-row"><span class="stat-label">Team Dyn.</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 100%;"></div></div><span class="stat-val">10</span></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">2014 · Production I.G</span>
+          <span class="card-arrow">EXPLORE →</span>
+        </div>
+      </div>
+
+      <div class="anime-card" style="--card-accent: #22c55e;">
+        <div class="card-visual">
+          <div class="card-bg" style="background: linear-gradient(135deg, #001a18 0%, #003530 50%, #001a18 100%);"></div>
+          <div class="card-kanji">波</div>
+          <span class="card-rank">#02</span>
+          <span class="card-score">8.5</span>
+          <div class="card-icon">🏊</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Kuroko's Basketball</div>
+          <div class="card-sub">Kuroko no Basuke</div>
+          <div class="card-info">
+            <span class="card-tag">Basketball</span>
+            <span class="card-tag">75 ep</span>
+          </div>
+          <p class="card-desc">An invisible player becomes the secret weapon of a team challenging the sport's elite prodigies. Anime-physics basketball that makes the impossible look cool.</p>
+          <div class="stat-row"><span class="stat-label">Hype</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 95%;"></div></div><span class="stat-val">9.5</span></div>
+          <div class="stat-row"><span class="stat-label">Style</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 92%;"></div></div><span class="stat-val">9.2</span></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">2012 · Production I.G</span>
+          <span class="card-arrow">EXPLORE →</span>
+        </div>
+      </div>
+
+      <div class="anime-card" style="--card-accent: #22c55e;">
+        <div class="card-visual">
+          <div class="card-bg" style="background: linear-gradient(135deg, #0d1400 0%, #1e2800 50%, #0d1400 100%);"></div>
+          <div class="card-kanji">走</div>
+          <span class="card-rank">#03</span>
+          <span class="card-score">8.2</span>
+          <div class="card-icon">🏃</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Run with the Wind</div>
+          <div class="card-sub">Kaze ga Tsuyoku Fuiteiru</div>
+          <div class="card-info">
+            <span class="card-tag">Track</span>
+            <span class="card-tag">23 ep</span>
+          </div>
+          <p class="card-desc">A former elite runner recruits misfits to compete in the most grueling relay race in Japan. A sleeper masterpiece — quiet, character-driven, and devastatingly human.</p>
+          <div class="stat-row"><span class="stat-label">Character</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 100%;"></div></div><span class="stat-val">10</span></div>
+          <div class="stat-row"><span class="stat-label">Growth</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 98%;"></div></div><span class="stat-val">9.8</span></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">2018 · Production I.G</span>
+          <span class="card-arrow">EXPLORE →</span>
+        </div>
+      </div>
+
+      <div class="anime-card" style="--card-accent: #22c55e;">
+        <div class="card-visual">
+          <div class="card-bg" style="background: linear-gradient(135deg, #14000a 0%, #300015 50%, #14000a 100%);"></div>
+          <div class="card-kanji">卓</div>
+          <span class="card-rank">#04</span>
+          <span class="card-score">8.4</span>
+          <div class="card-icon">🏓</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Ping Pong the Animation</div>
+          <div class="card-sub">Ping Pong</div>
+          <div class="card-info">
+            <span class="card-tag">Table Tennis</span>
+            <span class="card-tag">11 ep</span>
+          </div>
+          <p class="card-desc">Two childhood friends with completely different relationships to the game compete at the highest level. Visually radical art style. More about identity than sport.</p>
+          <div class="stat-row"><span class="stat-label">Art</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 100%;"></div></div><span class="stat-val">10</span></div>
+          <div class="stat-row"><span class="stat-label">Theme</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 100%;"></div></div><span class="stat-val">10</span></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">2014 · Tatsunoko</span>
+          <span class="card-arrow">EXPLORE →</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PSYCHOLOGICAL -->
+  <section class="genre-section visible" id="psychological" data-genre="psychological">
+    <div class="genre-header">
+      <span class="genre-num">08</span>
+      <h2 class="genre-name" style="color: var(--accent6);">PSYCHOLOGICAL</h2>
+      <div class="genre-bar" style="background: linear-gradient(90deg, var(--accent6), #c2410c);"></div>
+      <p class="genre-desc">Unreliable narrators. Fractured realities. Stories that rewire your brain chemistry.</p>
+    </div>
+    <div class="anime-grid">
+
+      <div class="anime-card" style="--card-accent: #f97316;">
+        <div class="card-visual">
+          <div class="card-bg" style="background: linear-gradient(135deg, #0a0a00 0%, #1e1e00 50%, #0a0a00 100%);"></div>
+          <div class="card-kanji">死</div>
+          <span class="card-rank">#01</span>
+          <span class="card-score">9.0</span>
+          <div class="card-icon">📓</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Death Note</div>
+          <div class="card-sub">Desu Noto</div>
+          <div class="card-info">
+            <span class="card-tag">Thriller</span>
+            <span class="card-tag">37 ep</span>
+          </div>
+          <p class="card-desc">A genius student finds a notebook that kills anyone whose name is written in it. A psychological arms race between two geniuses that consumes everything it touches.</p>
+          <div class="stat-row"><span class="stat-label">Intellect</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 100%;"></div></div><span class="stat-val">10</span></div>
+          <div class="stat-row"><span class="stat-label">Tension</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 98%;"></div></div><span class="stat-val">9.8</span></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">2006 · Madhouse</span>
+          <span class="card-arrow">EXPLORE →</span>
+        </div>
+      </div>
+
+      <div class="anime-card" style="--card-accent: #f97316;">
+        <div class="card-visual">
+          <div class="card-bg" style="background: linear-gradient(135deg, #001510 0%, #003025 50%, #001510 100%);"></div>
+          <div class="card-kanji">狂</div>
+          <span class="card-rank">#02</span>
+          <span class="card-score">8.3</span>
+          <div class="card-icon">🌀</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Perfect Blue</div>
+          <div class="card-sub">Pafekuto Buru</div>
+          <div class="card-info">
+            <span class="card-tag">Film · Psychological</span>
+            <span class="card-tag">81 min</span>
+          </div>
+          <p class="card-desc">A pop idol retires to act, only to be stalked and consumed by a fractured identity. Satoshi Kon's masterpiece that inspired Black Swan. Leaves you questioning reality.</p>
+          <div class="stat-row"><span class="stat-label">Dread</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 100%;"></div></div><span class="stat-val">10</span></div>
+          <div class="stat-row"><span class="stat-label">Craft</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 100%;"></div></div><span class="stat-val">10</span></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">1997 · Madhouse</span>
+          <span class="card-arrow">EXPLORE →</span>
+        </div>
+      </div>
+
+      <div class="anime-card" style="--card-accent: #f97316;">
+        <div class="card-visual">
+          <div class="card-bg" style="background: linear-gradient(135deg, #100500 0%, #2a0f00 50%, #100500 100%);"></div>
+          <div class="card-kanji">彼</div>
+          <span class="card-rank">#03</span>
+          <span class="card-score">8.1</span>
+          <div class="card-icon">🪆</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Paranoia Agent</div>
+          <div class="card-sub">Mousou Dairinin</div>
+          <div class="card-info">
+            <span class="card-tag">Surreal</span>
+            <span class="card-tag">13 ep</span>
+          </div>
+          <p class="card-desc">A mysterious roller-blading attacker terrorizes a city while everyone constructs their own version of events. A surrealist spiral examining how society creates and perpetuates myth.</p>
+          <div class="stat-row"><span class="stat-label">Surreal</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 100%;"></div></div><span class="stat-val">10</span></div>
+          <div class="stat-row"><span class="stat-label">Theme</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 97%;"></div></div><span class="stat-val">9.7</span></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">2004 · Madhouse</span>
+          <span class="card-arrow">EXPLORE →</span>
+        </div>
+      </div>
+
+      <div class="anime-card" style="--card-accent: #f97316;">
+        <div class="card-visual">
+          <div class="card-bg" style="background: linear-gradient(135deg, #00080f 0%, #001525 50%, #00080f 100%);"></div>
+          <div class="card-kanji">洗</div>
+          <span class="card-rank">#04</span>
+          <span class="card-score">8.9</span>
+          <div class="card-icon">🧠</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">Mob Psycho 100</div>
+          <div class="card-sub">Mobu Saiko 100</div>
+          <div class="card-info">
+            <span class="card-tag">Supernatural</span>
+            <span class="card-tag">37 ep</span>
+          </div>
+          <p class="card-desc">The world's most powerful esper simply wants to be normal and make friends. A hilarious, emotionally intelligent story about mental health, authenticity, and self-worth.</p>
+          <div class="stat-row"><span class="stat-label">Animation</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 100%;"></div></div><span class="stat-val">10</span></div>
+          <div class="stat-row"><span class="stat-label">Heart</span><div class="stat-bar-wrap"><div class="stat-bar-fill" style="--fill: 98%;"></div></div><span class="stat-val">9.8</span></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-year">2016 · Bones</span>
+          <span class="card-arrow">EXPLORE →</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="footer-logo">ANIM<span>Λ</span></div>
+  <p class="footer-copy">// A curation across every genre · 2026 · Not affiliated with any studio</p>
+</footer>
+
+<script>
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx - 6 + 'px';
+    cursor.style.top = my - 6 + 'px';
+  });
+
+  function animRing() {
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = rx - 18 + 'px';
+    ring.style.top = ry - 18 + 'px';
+    requestAnimationFrame(animRing);
+  }
+  animRing();
+
+  document.querySelectorAll('a, button, .anime-card, .pill').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.transform = 'scale(2)';
+      ring.style.transform = 'scale(1.5)';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.transform = 'scale(1)';
+      ring.style.transform = 'scale(1)';
+    });
+  });
+
+  // Filter
+  function filterGenre(genre, btn) {
+    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.genre-section').forEach(s => {
+      if (genre === 'all' || s.dataset.genre === genre) {
+        s.classList.remove('hidden');
+      } else {
+        s.classList.add('hidden');
+      }
+    });
+  }
+
+  // Intersection Observer for stat bars + genre bar
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.genre-section').forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
